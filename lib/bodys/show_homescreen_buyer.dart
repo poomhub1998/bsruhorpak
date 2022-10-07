@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:bsru_horpak/models/product_model.dart';
@@ -16,6 +17,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -26,6 +30,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   //ตัวแปร
+
+  UserModel? userModel;
+  ProductModel? productModel;
+  double? lat1, lng1, lat2, lng2, distance;
+  String? distanceString;
+  int? transport;
+  CameraPosition? position;
   bool load = true;
   bool? haveData;
   final formKey = GlobalKey<FormState>();
@@ -35,12 +46,16 @@ class _HomeScreenState extends State<HomeScreen> {
   List<List<String>> lisImages = [];
   int indexImage = 0;
 
+  int index = 0;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
     loadValueFromAPI();
+
+    // finalLocationData();
   }
 
   Future<Null> loadValueFromAPI() async {
@@ -54,8 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
         '${MyConstant.domain}/bsruhorpak/getProductWhereTypeOwner.php';
     await Dio().get(apiGetProductWhereIdProduct).then(
       (value) {
-        // print('### หอทั้งหมด ==> $value');
-
         if (value.toString() == 'null') {
           // No Data
 
@@ -87,6 +100,41 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
+  Future<LocationData?> finalLocationData() async {
+    Location location = Location();
+    try {
+      return await location.getLocation();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  double calculateDistance(double lat1, double lng1, double lat2, double lng2) {
+    double distance = 0;
+
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lng2 - lng1) * p)) / 2;
+    distance = 12742 * asin(sqrt(a));
+
+    return distance;
+  }
+
+  int calculateTransport(double distance) {
+    int transport;
+    if (distance < 1.0) {
+      transport = 5;
+      return transport;
+    } else {
+      transport = 5 + (distance - 1).round() * 1;
+      return transport;
+    }
+  }
+
+  // Future<Null> findLat1Lng1() async {}
 
   // Future<Null> userloadValueFromAPI() async {
   //   if (userModels.length != 0) {
@@ -255,12 +303,33 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: productModels.length,
       itemBuilder: (context, index) => SingleChildScrollView(
         child: GestureDetector(
-          onTap: () => {
-            print('คลิก ${productModels[index].id}'),
+          onTap: () async {
+            print('คลิก ${productModels[index].id}');
+
+            LocationData? locationData = await finalLocationData();
+            setState(
+              () {
+                lat1 = locationData!.latitude;
+                lng1 = locationData.longitude;
+                lat2 = double.parse(productModels[index].lat);
+                lng2 = double.parse(productModels[index].lng);
+                print('lat1 = $lat1, lng1 = $lng1, lat2 = $lat2, lng2 = $lng2');
+                distance = calculateDistance(lat1!, lng1!, lat2!, lng2!);
+                print('sssss$distance');
+                var myFormat = NumberFormat('##.0#', 'en_US');
+                distanceString = myFormat.format(distance);
+
+                transport = calculateTransport(distance!);
+
+                print('distance = $distance');
+                print('transport ==> $transport');
+              },
+            );
+
             showAlerlDialog(
               productModels[index],
               lisImages[index],
-            ),
+            );
           },
           child: Card(
             child: Row(
@@ -432,10 +501,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         children: [
                           ShowTitle(
-                              title: 'ระยะทาง : ${productModels.lat}',
+                              title: distance == null
+                                  ? ''
+                                  : 'ระยะทาง : $distanceString กิโลเมตร',
                               textStyle: MyConstant().h3Style()),
                         ],
                       ),
+                      buildMap(),
 
                       // IconButton(
                       //   onPressed: () {},
@@ -488,6 +560,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ));
   }
+
+  Widget buildMap() => Container(
+      color: Colors.grey,
+      width: double.infinity,
+      height: 200,
+      child: lat2 == null
+          ? ShowProgress()
+          : GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: LatLng(lat2!, lng2!),
+                zoom: 16,
+              ),
+              onMapCreated: (controller) {},
+              // markers: setMarker(),
+            ));
 
   String cutWrod(String string) {
     String result = string;

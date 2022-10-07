@@ -83,8 +83,7 @@ class _AddHorPakState extends State<AddHorPak> {
                     buildHorPakPrice(constraints),
                     buildHorPakDetail(constraints),
                     buildHorPakAddress(constraints),
-
-                    // buildMap(),
+                    buildMap(),
                     addHorPakButton(constraints)
                   ],
                 ),
