@@ -48,17 +48,17 @@ class SQLiteHelper {
         (value) => print('### insert Value name ==>> ${sqLiteModel.name}'));
   }
 
-  // Future<void> deleteSQLiteWhereId(int id) async {
-  //   Database database = await connectedDatabase();
-  //   await database
-  //       .delete(tableDatabase, where: '$columnId = $id')
-  //       .then((value) => print('### Success Delete id ==> $id'));
-  // }
+  Future<void> deleteSQLiteWhereId(int id) async {
+    Database database = await connectedDatabase();
+    await database
+        .delete(tableDatabase, where: '$columnId = $id')
+        .then((value) => print('### Success Delete id ==> $id'));
+  }
 
-  // Future<void> emptySQLite() async {
-  //   Database database = await connectedDatabase();
-  //   await database
-  //       .delete(tableDatabase)
-  //       .then((value) => print('### Empty SQLite Success'));
-  // }
+  Future<void> emptySQLite() async {
+    Database database = await connectedDatabase();
+    await database
+        .delete(tableDatabase)
+        .then((value) => print('### Empty SQLite Success'));
+  }
 }

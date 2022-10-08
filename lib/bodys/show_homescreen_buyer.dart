@@ -6,12 +6,14 @@ import 'package:bsru_horpak/models/product_model.dart';
 import 'package:bsru_horpak/models/sqlite_model.dart';
 import 'package:bsru_horpak/models/user_model.dart';
 import 'package:bsru_horpak/utility/my_constant.dart';
+import 'package:bsru_horpak/utility/my_dialog.dart';
 import 'package:bsru_horpak/utility/sqlite_heiper.dart';
 import 'package:bsru_horpak/widgets/show_image.dart';
 import 'package:bsru_horpak/widgets/show_progress.dart';
 import 'package:bsru_horpak/widgets/show_signuot.dart';
 import 'package:bsru_horpak/widgets/show_title.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:dio/dio.dart';
@@ -30,7 +32,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   //ตัวแปร
-
+  String? currentIdOwner;
   UserModel? userModel;
   ProductModel? productModel;
   double? lat1, lng1, lat2, lng2, distance;
@@ -54,9 +56,23 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
 
     loadValueFromAPI();
+    // readreserve();
 
-    // finalLocationData();
+    finalLocationData();
   }
+
+//   Future<Null> readreserve()async{
+// await SQLiteHelper().readSQLite().then((value) {
+//   if (value.length != 0) {
+//     List<SQLiteHelper> models =[];
+//     for (var model in value) {
+//       models.add(model);
+
+//     }
+//     currentIdOwner = models[0]p
+//   }
+// });
+//   }
 
   Future<Null> loadValueFromAPI() async {
     if (productModels.length != 0) {
@@ -134,7 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Future<Null> findLat1Lng1() async {}
+  // Future<Null> findLat1Lng1() async {
+
+  // }
 
   // Future<Null> userloadValueFromAPI() async {
   //   if (userModels.length != 0) {
@@ -461,17 +479,33 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         children: [
                           ShowTitle(
-                              title: 'ราคา :${productModels.price} บาท',
+                              title: 'ราคา :',
+                              textStyle: MyConstant().h2Style()),
+                          ShowTitle(
+                              title: ' ${productModels.price} บาท/เดือน',
                               textStyle: MyConstant().h3Style()),
                         ],
                       ),
                       Row(
                         children: [
                           ShowTitle(
-                              title: 'ที่อยูุ่ :${productModels.address} ',
+                              title: 'ที่อยู่ :',
                               textStyle: MyConstant().h3Style()),
                         ],
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Row(
+                          children: [
+                            Container(
+                                width: 200,
+                                child: ShowTitle(
+                                    title: productModels.address,
+                                    textStyle: MyConstant().h3Style())),
+                          ],
+                        ),
+                      ),
+
                       Row(
                         children: [
                           ShowTitle(
@@ -480,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(left: 12, bottom: 10),
                         child: Row(
                           children: [
                             Container(
@@ -494,8 +528,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         children: [
                           ShowTitle(
-                              title: 'เบอร์โทรศัพท์ : ${productModels.phone}',
+                              title: 'เบอร์โทรศัพท์ :',
                               textStyle: MyConstant().h3Style()),
+                          ShowTitle(
+                              title: ' ${productModels.phone} ',
+                              textStyle: MyConstant().h3Style()),
+                          IconButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: productModels.phone),
+                              );
+                              // MyDialog().normalDialog(context, 'คักลอก',
+                              //     'คักลอกเบอร์โทรศัพท์สำเร็จ');
+                            },
+                            icon: Icon(
+                              Icons.copy,
+                              size: 16,
+                              color: MyConstant.primary,
+                            ),
+                          )
                         ],
                       ),
                       Row(
@@ -507,7 +558,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               textStyle: MyConstant().h3Style()),
                         ],
                       ),
-                      buildMap(),
+                      showMap()
 
                       // IconButton(
                       //   onPressed: () {},
@@ -561,20 +612,46 @@ class _HomeScreenState extends State<HomeScreen> {
             ));
   }
 
-  Widget buildMap() => Container(
-      color: Colors.grey,
-      width: double.infinity,
-      height: 200,
-      child: lat2 == null
+  Container showMap() {
+    if (lat1 != null) {
+      LatLng latLng1 = LatLng(lat1!, lng1!);
+      position = CameraPosition(target: latLng1, zoom: 11);
+    }
+    Marker userMarker() {
+      return Marker(
+        markerId: MarkerId('userMarker'),
+        position: LatLng(lat1!, lng1!),
+        icon: BitmapDescriptor.defaultMarkerWithHue(60.0),
+        infoWindow: InfoWindow(title: 'คุณอยู่ที่นี้'),
+      );
+    }
+
+    Marker shopMarker() {
+      return Marker(
+        markerId: MarkerId('shopMarker'),
+        position: LatLng(lat2!, lng2!),
+        icon: BitmapDescriptor.defaultMarkerWithHue(150.0),
+        infoWindow: InfoWindow(title: 'หอพัก'),
+      );
+    }
+
+    Set<Marker> mySet() {
+      return <Marker>[userMarker(), shopMarker()].toSet();
+    }
+
+    return Container(
+      height: 250,
+      // color: Colors.grey,
+      child: lat1 == null
           ? ShowProgress()
           : GoogleMap(
-              initialCameraPosition: CameraPosition(
-                target: LatLng(lat2!, lng2!),
-                zoom: 16,
-              ),
-              onMapCreated: (controller) {},
-              // markers: setMarker(),
-            ));
+              initialCameraPosition: position!,
+              mapType: MapType.normal,
+              onMapCreated: (context) {},
+              markers: mySet(),
+            ),
+    );
+  }
 
   String cutWrod(String string) {
     String result = string;

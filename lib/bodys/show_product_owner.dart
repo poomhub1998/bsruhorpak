@@ -43,7 +43,7 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
         '${MyConstant.domain}/bsruhorpak/getProductWhereIdOwner.php?isAdd=true&idOwner=$id';
     await Dio().get(apiGetProductWhereIdProduct).then(
       (value) {
-        print('### หอทั้งหมด ==> $value');
+        // print('### หอทั้งหมด ==> $value');
 
         if (value.toString() == 'null') {
           // No Data
@@ -81,10 +81,10 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ShowTitle(
-                          title: 'No Product',
+                          title: ' ยังไม่ได้เพิ่มข้อมูลหอพัก',
                           textStyle: MyConstant().h1Style()),
                       ShowTitle(
-                          title: 'Please Add Product',
+                          title: 'โปรดเพิ่มข้อมูลหอพัก',
                           textStyle: MyConstant().h2Style()),
                     ],
                   ),
@@ -146,7 +146,7 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ShowTitle(
-                            title: 'ชื่อ: ${productModels[index].name}',
+                            title: 'ชื่อหอพัก: ${productModels[index].name}',
                             textStyle: MyConstant().h3Style()),
                       ],
                     ),
