@@ -1,6 +1,7 @@
 import 'package:bsru_horpak/states/aad_horpak.dart';
 import 'package:bsru_horpak/states/authen.dart';
 import 'package:bsru_horpak/states/buyer.dart';
+import 'package:bsru_horpak/states/confrim_reserve.dart';
 import 'package:bsru_horpak/states/create_account.dart';
 import 'package:bsru_horpak/states/owner.dart';
 import 'package:bsru_horpak/states/show_reserve.dart';
@@ -15,6 +16,7 @@ final Map<String, WidgetBuilder> map = {
   '/owner': (BuildContext context) => Owner(),
   '/addHorPak': (BuildContext context) => AddHorPak(),
   '/showReserve': (BuildContext context) => ShowReserve(),
+  '/conFrimReseve': (BuildContext context) => ConFrimReseve(),
 };
 String? initlalRoute;
 

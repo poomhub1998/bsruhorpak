@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
-
+import 'package:intl/intl.dart';
 import 'package:bsru_horpak/models/product_model.dart';
 import 'package:bsru_horpak/models/sqlite_model.dart';
 import 'package:bsru_horpak/models/user_model.dart';
@@ -14,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ShowReserve extends StatefulWidget {
   const ShowReserve({Key? key}) : super(key: key);
@@ -28,13 +28,33 @@ class _ShowReserveState extends State<ShowReserve> {
   UserModel? userModel;
   ProductModel? productModel;
   int? total;
+  String? idBuyer;
+  String? dateTimeStr;
+  // int index = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    processReadSQLite();
+    findCurrentTime();
     findDeraiIdOwner();
+    findUserModel();
+    processReadSQLite();
+    findIdBuyer();
+  }
+
+  Future<void> findIdBuyer() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    idBuyer = preferences.getString('id');
+  }
+
+  void findCurrentTime() {
+    DateTime dateTime = DateTime.now();
+    DateFormat dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+    setState(() {
+      dateTimeStr = dateFormat.format(dateTime);
+    });
+    print('เวลา = $dateTimeStr');
   }
 
   Future<Null> processReadSQLite() async {
@@ -52,15 +72,19 @@ class _ShowReserveState extends State<ShowReserve> {
   }
 
   // void calculateTotal() async {
-  //   for (var item in sqliteModels)
-  //   int sumInt = int.parse(item.){
-
+  //   total = 0;
+  //   for (var item in sqliteModels) {
+  //     int sumInt = int.parse(item.sum.trim());
+  //     setState(() {
+  //       total = total! + sumInt;
+  //     });
   //   }
   // }
 
   Future<void> findDeraiIdOwner() async {
-    String idOwner = sqliteModels[0].idOwner;
-    print('### idOwner ===> $idOwner');
+    String idOwner = sqliteModels[0].idProduct;
+    print('### idadsad ===> $idOwner');
+    print('เวลา $dateTimeStr');
     String apiGetUserWhereId =
         '${MyConstant.domain}/bsruhorpak/getProductWhereIdOwner.php?isAdd=true&idOwner=$idOwner';
     await Dio().get(apiGetUserWhereId).then((value) {
@@ -72,11 +96,28 @@ class _ShowReserveState extends State<ShowReserve> {
     });
   }
 
+  Future<Null> findUserModel() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String id = preferences.getString('id')!;
+    // print('## id Logined ==> $id');
+    String apiGetUserWhereId =
+        '${MyConstant.domain}/bsruhorpak/getUserWhereId.php?isAdd=true&id=$id';
+    await Dio().get(apiGetUserWhereId).then((value) {
+      // print('vulue === $value');
+      for (var item in jsonDecode(value.data)) {
+        setState(() {
+          userModel = UserModel.fromMap(item);
+          // print('name login ${userModel!.name}');
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('reserve'),
+        title: Text('จอง'),
       ),
       body: load
           ? ShowProgress()
@@ -107,6 +148,21 @@ class _ShowReserveState extends State<ShowReserve> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         showHorpak(),
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: ShowTitle(
+                title: 'เวลา :',
+                textStyle: MyConstant().h3Style(),
+              ),
+            ),
+            ShowTitle(
+              title: dateTimeStr == null ? 'dd/MM/yy ' : dateTimeStr!,
+              textStyle: MyConstant().h3Style(),
+            ),
+          ],
+        ),
         buildHead(),
         listHorpak(),
         buildDivider(),
@@ -158,7 +214,10 @@ class _ShowReserveState extends State<ShowReserve> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            // print('ข้อมูล $sqliteModels คนจอง $userModel , ');
+            Navigator.pushNamed(context, MyConstant.conFrimReseve);
+          },
           child: Text('จอง'),
         ),
         Container(
@@ -257,7 +316,7 @@ class _ShowReserveState extends State<ShowReserve> {
             Expanded(
               flex: 1,
               child: ShowTitle(
-                title: 'เบอร์',
+                title: 'เบอร์โทรศัพท์',
                 textStyle: MyConstant().h2Style(),
               ),
             ),
@@ -274,9 +333,13 @@ class _ShowReserveState extends State<ShowReserve> {
   Padding showHorpak() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: ShowTitle(
-        title: productModel == null ? '' : 'หอพักที่จอง',
-        textStyle: MyConstant().h1Style(),
+      child: Row(
+        children: [
+          ShowTitle(
+            title: sqliteModels == null ? '' : 'หอพักที่จอง',
+            textStyle: MyConstant().h1Style(),
+          ),
+        ],
       ),
     );
   }

@@ -54,7 +54,7 @@ class _BuyerState extends State<Buyer> {
     String apiGetUserWhereId =
         '${MyConstant.domain}/bsruhorpak/getUserWhereId.php?isAdd=true&id=$id';
     await Dio().get(apiGetUserWhereId).then((value) {
-      // print('vulue === $value');
+      print('vulue === $value');
       for (var item in jsonDecode(value.data)) {
         setState(() {
           userModel = UserModel.fromMap(item);

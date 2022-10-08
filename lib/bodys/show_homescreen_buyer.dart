@@ -48,8 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<List<String>> lisImages = [];
   int indexImage = 0;
 
-  int index = 0;
-
   @override
   void initState() {
     // TODO: implement initState
@@ -59,20 +57,20 @@ class _HomeScreenState extends State<HomeScreen> {
     // readreserve();
 
     finalLocationData();
+    findUserModel();
   }
 
-//   Future<Null> readreserve()async{
-// await SQLiteHelper().readSQLite().then((value) {
-//   if (value.length != 0) {
-//     List<SQLiteHelper> models =[];
-//     for (var model in value) {
-//       models.add(model);
-
-//     }
-//     currentIdOwner = models[0]p
-//   }
-// });
-//   }
+  // Future<Null> readreserve() async {
+  //   await SQLiteHelper().readSQLite().then((value) {
+  //     if (value.length != 0) {
+  //       List<SQLiteHelper> models = [];
+  //       for (var model in value) {
+  //         models.add(model);
+  //       }
+  //       currentIdOwner = model[0];
+  //     }
+  //   });
+  // }
 
   Future<Null> loadValueFromAPI() async {
     if (productModels.length != 0) {
@@ -117,6 +115,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<Null> findUserModel() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String id = preferences.getString('id')!;
+    // print('## id Logined ==> $id');
+    String apiGetUserWhereId =
+        '${MyConstant.domain}/bsruhorpak/getUserWhereId.php?isAdd=true&id=$id';
+    await Dio().get(apiGetUserWhereId).then((value) {
+      print('vulue === $value');
+      for (var item in jsonDecode(value.data)) {
+        setState(() {
+          userModel = UserModel.fromMap(item);
+          // print('name login ${userModel!.name}');
+        });
+      }
+    });
+  }
+
   Future<LocationData?> finalLocationData() async {
     Location location = Location();
     try {
@@ -149,76 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return transport;
     }
   }
-
-  // Future<Null> findLat1Lng1() async {
-
-  // }
-
-  // Future<Null> userloadValueFromAPI() async {
-  //   if (userModels.length != 0) {
-  //     userModels.clear();
-  //   } else {}
-
-  //   SharedPreferences preferences = await SharedPreferences.getInstance();
-  //   String id = preferences.getString('id')!;
-  //   String apiGetProductWhereIdProduct =
-  //       '${MyConstant.domain}/bsruhorpak/getUserWhereUser.php?isAdd=true&user=$id';
-  //   await Dio().get(apiGetProductWhereIdProduct).then(
-  //     (value) {
-  //       print('### หอทั้งหมด ==> $value');
-
-  //       if (value.toString() == 'null') {
-  //         // No Data
-
-  //         setState(() {
-  //           load = false;
-  //           haveData = false;
-  //         });
-  //       } else {
-  //         // Have Data
-  //         for (var item in jsonDecode(value.data)) {
-  //           UserModel model = UserModel.fromMap(item);
-  //           // String string = model.images;
-  //           // string = string.substring(1, string.length - 1);
-  //           // List<String> strings = string.split(',');
-  //           int i = 0;
-  //           // for (var item in strings) {
-  //           //   strings[i] = item.trim();
-  //           //   i++;
-  //           // }
-  //           // lisImages.add(strings);
-
-  //           setState(() {
-  //             load = false;
-  //             haveData = true;
-  //             userModels.add(model);
-  //           });
-  //         }
-  //       }
-  //     },
-  //   );
-  // }
-
-  // Future<Null> readApiHorpak2() async {
-  //   String urlAPI =
-  //       '${MyConstant.domain}/bsruhorpak/getProductWhereTypeOwner.php';
-  //   await Dio().get(urlAPI).then((value) {
-  //     setState(() {
-  //       load = false;
-  //     });
-  //     print('ค่า $value');
-  //     var result = jsonDecode(value.data);
-  //     // print(' =$result');
-  //     for (var item in result) {
-  //       // print('item == $item');
-  //       ProductModel model = ProductModel.fromMap(item);
-  //       // print('name ${model.name}');
-  //       setState(() {
-  //         productModels.add(model);
-  //       });
-  //     }
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
