@@ -320,9 +320,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(top: 10),
                   width: constraints.maxWidth * 0.5 - 4,
-                  height: constraints.maxWidth * 0.5 - 4,
+                  height: constraints.maxWidth * 0.5,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ShowTitle(
-                              title: 'ชื่อ: ${productModels[index].name}',
+                              title: 'ชื่อหอพัก: ${productModels[index].name}',
                               textStyle: MyConstant().h3Style()),
                         ],
                       ),
@@ -425,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           ShowTitle(
                               title: 'ราคา :',
-                              textStyle: MyConstant().h2Style()),
+                              textStyle: MyConstant().h3Style()),
                           ShowTitle(
                               title: ' ${productModels.price} บาท/เดือน',
                               textStyle: MyConstant().h3Style()),
@@ -453,9 +452,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       Row(
                         children: [
-                          ShowTitle(
-                              title: 'รายละเอียด :',
-                              textStyle: MyConstant().h3Style()),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: ShowTitle(
+                                title: 'รายละเอียด :',
+                                textStyle: MyConstant().h3Style()),
+                          ),
                         ],
                       ),
                       Padding(

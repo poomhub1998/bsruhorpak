@@ -113,15 +113,15 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(4),
+                padding: EdgeInsets.all(0),
                 width: constraints.maxWidth * 0.5 - 4,
-                height: constraints.maxWidth * 0.5,
+                height: constraints.maxWidth * 0.5 - 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Container(
-                      width: constraints.maxWidth * 0.45,
+                      width: constraints.maxWidth * 0.4,
                       height: constraints.maxWidth * 0.4,
                       child: CachedNetworkImage(
                         fit: BoxFit.cover,
@@ -135,7 +135,7 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(top: 10),
+                margin: EdgeInsets.only(),
                 width: constraints.maxWidth * 0.5 - 4,
                 height: constraints.maxWidth * 0.5 - 4,
                 child: Column(
@@ -157,7 +157,7 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
                         title: 'รายละเอียด:',
                         textStyle: MyConstant().h3Style()),
                     ShowTitle(
-                        title: cutWrod('  ${productModels[index].detail}'),
+                        title: cutWrod(' ${productModels[index].detail}'),
                         textStyle: MyConstant().h3Style()),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -243,7 +243,7 @@ class _ShowProductOwnerState extends State<ShowProductOwner> {
   String cutWrod(String string) {
     String result = string;
     if (result.length >= 100) {
-      result = result.substring(0, 150);
+      result = result.substring(0, 100);
       result = '$result....';
     }
     return result;

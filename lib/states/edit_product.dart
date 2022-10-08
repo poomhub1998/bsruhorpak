@@ -25,6 +25,8 @@ class _EditProductState extends State<EditProduct> {
   TextEditingController nameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController detilController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
 
   List<String> pathImages = [];
   final formkey = GlobalKey<FormState>();
@@ -41,6 +43,8 @@ class _EditProductState extends State<EditProduct> {
     convertStringToArray();
     nameController.text = productModel!.name;
     priceController.text = productModel!.price;
+    phoneController.text = productModel!.phone;
+    addressController.text = productModel!.address;
     detilController.text = productModel!.detail;
   }
 
@@ -85,6 +89,8 @@ class _EditProductState extends State<EditProduct> {
                   buildTitle('แก้ไขข้อมูลหอพัก'),
                   buildName(constraints),
                   buildPrice(constraints),
+                  buildPhone(constraints),
+                  buildAddress(constraints),
                   buildDetail(constraints),
                   buildTitle('แก้ไขรูปภาพ'),
                   buildImage(constraints, 0),
@@ -220,6 +226,35 @@ class _EditProductState extends State<EditProduct> {
     );
   }
 
+  Row buildPhone(BoxConstraints constraints) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 16),
+            width: constraints.maxWidth * 0.75,
+            child: TextFormField(
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'กรอกเบอร์ที่ต้องการเปลี่ยน';
+                } else {
+                  return null;
+                }
+              },
+              keyboardType: TextInputType.phone,
+              controller: phoneController,
+              decoration: InputDecoration(
+                labelText: 'เบอร์โทรศัพท์',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Row buildDetail(BoxConstraints constraints) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -248,6 +283,34 @@ class _EditProductState extends State<EditProduct> {
     );
   }
 
+  Row buildAddress(BoxConstraints constraints) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 16),
+            width: constraints.maxWidth * 0.75,
+            child: TextFormField(
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'กรอกที่อยู่ ที่ต้องการเปลี่ยน';
+                } else {
+                  return null;
+                }
+              },
+              controller: addressController,
+              decoration: InputDecoration(
+                labelText: 'ที่อยู่',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Row buildTitle(String title) {
     return Row(
       children: [
@@ -264,7 +327,9 @@ class _EditProductState extends State<EditProduct> {
       MyDialog().showProgressDialog(context);
       String name = nameController.text;
       String price = priceController.text;
+      String phone = phoneController.text;
       String detail = detilController.text;
+      String address = addressController.text;
       String id = productModel!.id;
       String images;
 
@@ -297,11 +362,12 @@ class _EditProductState extends State<EditProduct> {
       }
 
       print('status = $statusImage');
-      print('id = $id name $name price $price detail $detail');
+      print(
+          'id = $id name $name price $price phone $phone address $address detail $detail');
       print('image $images');
 
       String apiEditProduct =
-          '${MyConstant.domain}/bsruhorpak/editProductWhereId.php?isAdd=true&id=$id&name=$name&price=$price&detail=$detail&images=$images';
+          '${MyConstant.domain}/bsruhorpak/editProductWhereId.php?isAdd=true&id=$id&name=$name&price=$price&phone=$phone&address=$address&detail=$detail&images=$images';
       await Dio().get(apiEditProduct).then((value) => Navigator.pop(context));
     }
   }
